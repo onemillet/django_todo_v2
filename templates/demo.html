@@ -1,0 +1,93 @@
+{% load staticfiles %}
+{% load time_filters %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="{% static 'js/jquery.min.js' %}"></script>
+<link type="text/css" rel="stylesheet" href="{% static 'styles.css' %}">
+<title>ToDoList</title>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'styles.css' %}">
+<link href="{% static 'css/jquerysctipttop.css' %}" rel="stylesheet" type="text/css">
+</head>
+
+<body>
+    <div class="container" id="main">
+        <h1>ToDoList</h1>
+    <!--添加任务部分-->
+        <form role="form" id="main_input_box" method="post" action="{% url 'add' %}">
+            {% csrf_token %}
+            <label>
+                <input type="text" class="form-control" id="custom_textbox" name="Item" placeholder="请输入内容">
+                <input type="submit" value="Add" class="btn btn-primary add_button">
+            </label>
+        </form>
+    <!--列表部分-->
+        <ol class="list-group list_of_items">
+        {% for content in content_list %}
+            {% if content.status %}
+                <li class="list-group-item completed_item">
+	                <div class="text_holder">
+		                {{ content|format_time }}
+		                <div class="btn-group pull-right">
+                            <a href="{% url 'delete' content.id %}"><button class="delete btn btn-warning">Delete</button></a>
+                            <a href="{% url 'edit' content.id %}"><button class="edit btn btn-success">Edit</button></a>
+		                </div>
+                        <div class="checkbox">
+                            <a href="{% url 'status' content.id %}">
+                                <label><input type="submit" class="pull-right" name="todo" value="todo"></label>
+                            </a>
+                        </div>
+	                </div>
+                </li>
+            {% else %}
+                <li class="list-group-item ">
+	                <div class="text_holder">
+		                {{ content|format_time  }}
+		                <div class="btn-group pull-right">
+                            <a href="{% url 'delete' content.id %}"><button class="delete btn btn-warning">Delete</button></a>
+                            <a href="{% url 'edit' content.id %}"><button class="edit btn btn-success">Edit</button></a>
+		                </div>
+                        <div class="checkbox">
+                            <a href="{% url 'status' content.id %}">
+                                <label><input type="submit" class="pull-right" name="done" value="done"></label>
+                            </a>
+                        </div>
+	                </div>
+                </li>
+            {% endif %}
+    <!--修改内容部分-->
+{#        {% if id == content.id %}#}
+            {% ifequal id content.id %}
+                <li class="list-group-item">
+                    <form action="" method="post" class="edit_input_box">
+                        {%  csrf_token %}
+		                <input type="text" size="50" class="itembox" name="edit">
+		                <input type="submit" value="submit" class="edit btn btn-success">
+	                </form>
+	                <div class="checkbox">
+		                <label><input type="checkbox" class="pull-right"></label>
+	                </div>
+                </li>
+            {% endifequal %}
+        {% endfor %}
+    <!--页码部分-->
+            <div class="pagination">
+                <span class="step-links">
+                    {% if content_list.has_previous %}
+                        <a href="?page={{ content_list.previous_page_number }}">previous</a>
+                    {% endif %}
+                        <span class="current">
+                            Page: {{ content_list.number }} of {{ content_list.paginator.num_pages }}.
+                        </span>
+                    {% if content_list.has_next %}
+                        <a href="?page={{ content_list.next_page_number }}">next</a>
+                    {% endif %}
+                </span>
+            </div>
+        </ol>
+    </div>
+</body></html>
